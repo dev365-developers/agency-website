@@ -273,7 +273,7 @@ export default function HowItWorksSection() {
               </h3>
 
               {/* Card Content */}
-              <div className="group relative p-6 rounded-xl overflow-hidden transition-all duration-300 border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/20 mb-8">
+              <div className="group relative p-6 rounded-xl overflow-hidden transition-all duration-300 border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 hover:border-white/20 mb-8">
                 {/* Dot pattern background */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[length:4px_4px]" />

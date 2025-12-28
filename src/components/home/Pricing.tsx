@@ -286,8 +286,8 @@ function PricingCard({ plan, frequency }: { plan: Plan; frequency: FREQUENCY }) 
     <div
       className={`relative flex w-full flex-col rounded-2xl border ${
         plan.highlighted 
-          ? 'border-white/30 bg-white/[0.08]' 
-          : 'border-white/[0.08] bg-white/[0.02]'
+          ? 'border-white/40 bg-white/[0.08]' 
+          : 'border-white/20 bg-white/[0.02]'
       } backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.06] hover:border-white/20`}
     >
       {plan.highlighted && (

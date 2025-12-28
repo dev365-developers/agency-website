@@ -116,10 +116,55 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  html {
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
   }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-black text-white;
   }
+}
+
+/* Custom scrollbar - only for desktop */
+@media (min-width: 1024px) {
+  ::-webkit-scrollbar {
+    width: 14px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #000;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1a1a1a;
+    border-radius: 7px;
+    border: 3px solid #000;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2a2a2a;
+  }
+}
+
+/* Minimal scrollbar for mobile */
+@media (max-width: 1023px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+  }
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a1a #000;
 }

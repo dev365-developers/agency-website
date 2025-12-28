@@ -150,7 +150,7 @@ export default function WhatsIncluded() {
         </div>
 
         {/* Feature Grid */}
-        <div className="grid grid-cols-1 gap-px bg-white/10 rounded-lg overflow-hidden sm:grid-cols-2 lg:grid-cols-4 mb-12">
+        <div className="grid grid-cols-1 gap-px bg-white/20 rounded-lg overflow-hidden sm:grid-cols-2 lg:grid-cols-4 mb-12">
           {features.map((feature, i) => (
             <FeatureCard key={i} feature={feature} />
           ))}
