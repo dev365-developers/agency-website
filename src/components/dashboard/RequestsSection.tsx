@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Clock, CheckCircle, AlertCircle, Loader2, Edit2, X, Eye, CheckCircle2, XCircle, Phone, Mail, User } from 'lucide-react';
+import { FileText, Clock, CheckCircle, AlertCircle, Loader2, Edit2, X, Eye, CheckCircle2, XCircle, Phone, Mail, User, Search, Filter, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRequests } from '@/lib/api/hooks';
 import { WebsiteRequest } from '@/lib/api/types';
@@ -58,8 +58,10 @@ const RequestsSection = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
-  const { data: requests = [], isLoading } = useRequests();
+  const { data: requests = [], isLoading, refetch } = useRequests();
 
   const handleEdit = (request: WebsiteRequest) => {
     setSelectedRequest(request);
@@ -94,6 +96,28 @@ const RequestsSection = () => {
     return `${hours}h ${minutes}m`;
   };
 
+  // Filter requests
+  const filteredRequests = requests.filter(request => {
+    const matchesSearch = search === '' || 
+      request.projectName.toLowerCase().includes(search.toLowerCase()) ||
+      request.contactName.toLowerCase().includes(search.toLowerCase()) ||
+      request.contactEmail.toLowerCase().includes(search.toLowerCase());
+    
+    const matchesStatus = statusFilter === '' || request.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  // Calculate stats
+  const stats = {
+    total: requests.length,
+    PENDING: requests.filter(r => r.status === 'PENDING').length,
+    IN_REVIEW: requests.filter(r => r.status === 'IN_REVIEW').length,
+    CONTACTED: requests.filter(r => r.status === 'CONTACTED').length,
+    APPROVED: requests.filter(r => r.status === 'APPROVED').length,
+    REJECTED: requests.filter(r => r.status === 'REJECTED').length,
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -103,136 +127,240 @@ const RequestsSection = () => {
   }
 
   return (
-    <motion.div 
-      className="space-y-4 sm:space-y-6 px-3 sm:px-0"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-1">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">My Requests</h1>
-        <p className="text-sm sm:text-base text-white/60">Track and manage all your website requests</p>
+      <div className="border-b border-white/10 bg-black px-4 sm:px-6 lg:px-8 py-3 sm:py-6">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-lg sm:text-2xl font-bold">My Requests</h1>
+            <p className="text-xs sm:text-sm text-white/60 mt-0.5 sm:mt-1 hidden sm:block">
+              Track and manage all your website requests
+            </p>
+          </div>
+          <button
+            onClick={() => refetch()}
+            className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg font-medium transition-all text-xs sm:text-sm"
+          >
+            <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="hidden sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mt-4 sm:mt-6">
+          <div className="p-3 sm:p-4 border border-white/10 bg-white/5 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold">{stats.total}</div>
+            <div className="text-xs text-white/60 mt-1">Total</div>
+          </div>
+          <div className="p-3 sm:p-4 border border-white/10 bg-white/5 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold">{stats.PENDING}</div>
+            <div className="text-xs text-white/60 mt-1">Pending</div>
+          </div>
+          <div className="p-3 sm:p-4 border border-white/10 bg-white/5 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold">{stats.IN_REVIEW}</div>
+            <div className="text-xs text-white/60 mt-1">In Review</div>
+          </div>
+          <div className="p-3 sm:p-4 border border-white/10 bg-white/5 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold">{stats.CONTACTED}</div>
+            <div className="text-xs text-white/60 mt-1">Contacted</div>
+          </div>
+          <div className="p-3 sm:p-4 border border-white/10 bg-white/5 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold">{stats.APPROVED}</div>
+            <div className="text-xs text-white/60 mt-1">Approved</div>
+          </div>
+          <div className="p-3 sm:p-4 border border-white/10 bg-white/5 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold">{stats.REJECTED}</div>
+            <div className="text-xs text-white/60 mt-1">Rejected</div>
+          </div>
+        </div>
       </div>
 
-      {/* Requests List */}
-      {requests.length === 0 ? (
-        <motion.div 
-          className="flex items-center justify-center min-h-[60vh] sm:min-h-[calc(100vh-16rem)] bg-black/20 backdrop-blur-xl rounded-lg sm:rounded-xl border border-white/10 mx-1"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-        >
-          <div className="text-center space-y-4 sm:space-y-6 max-w-md px-4">
-            <motion.div 
-              className="relative inline-block"
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ duration: 0.6, type: "spring", stiffness: 150 }}
-            >
-              <div className="absolute inset-0 bg-white/10 blur-3xl rounded-full" />
-              <div className="relative flex items-center justify-center w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-white/5 border border-white/10">
-                <FileText className="h-8 w-8 sm:h-12 sm:w-12 text-white/40" />
-              </div>
-            </motion.div>
-            
-            <div>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3">No Requests Yet</h3>
-              <p className="text-sm sm:text-base text-white/60 leading-relaxed">
-                You haven't submitted any website requests yet. Head to the "My Websites" section to get started.
-              </p>
-            </div>
+      {/* Filters */}
+      <div className="flex-shrink-0 border-b border-white/10 bg-black px-4 sm:px-6 lg:px-8 py-2.5 sm:py-4">
+        <div className="flex gap-2 sm:gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 -translate-y-1/2 text-white/40" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 sm:pl-10 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 h-9 sm:h-10 text-sm"
+            />
           </div>
-        </motion.div>
-      ) : (
-        <div className="grid gap-3 sm:gap-4">
-          {requests.map((request, index) => {
-            const status = statusConfig[request.status as keyof typeof statusConfig];
-            const StatusIcon = status.icon;
-            
-            return (
-              <motion.div
-                key={request._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-gradient-to-br from-neutral-900/80 via-neutral-900/60 to-neutral-900/80 backdrop-blur-xl border border-white/10 rounded-lg sm:rounded-sm p-4 sm:p-6 hover:border-white/20 hover:shadow-lg hover:shadow-white/5 transition-all group"
-              >
-                <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                  <div className="flex-1 space-y-3 w-full">
-                    <div className="flex items-start gap-2 sm:gap-3">
-                      <div className="relative flex-shrink-0">
-                        <div className="absolute inset-0 bg-white/10 blur-xl rounded-md" />
-                        <div className="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-md bg-gradient-to-br from-white/10 to-white/5 border border-white/10">
-                          <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white/60" />
-                        </div>
-                      </div>
-                      
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="rounded-lg border border-white/10 bg-white/5 px-2 sm:px-4 py-2 text-xs sm:text-sm focus:border-white/20 focus:outline-none focus:ring-2 focus:ring-white/20 text-white h-9 sm:h-10 min-w-[100px] sm:min-w-[140px]"
+          >
+            <option value="" className="bg-black">All Status</option>
+            {Object.keys(statusConfig).map((status) => (
+              <option key={status} value={status} className="bg-black">
+                {statusConfig[status as keyof typeof statusConfig].label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Table - Desktop */}
+      <div className="flex-1 overflow-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="border border-white/10 bg-white/5 rounded-lg hidden md:block">
+          {filteredRequests.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Filter className="h-12 w-12 text-white/20 mb-4" />
+              <div className="text-white/60">No requests found</div>
+              <div className="text-sm text-white/40 mt-1">
+                {search || statusFilter ? 'Try adjusting your filters' : 'You haven\'t submitted any requests yet'}
+              </div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left text-xs sm:text-sm font-medium text-white/60 px-4 py-3">Project Name</th>
+                    <th className="text-left text-xs sm:text-sm font-medium text-white/60 px-4 py-3">Type</th>
+                    <th className="text-left text-xs sm:text-sm font-medium text-white/60 px-4 py-3">Contact</th>
+                    <th className="text-left text-xs sm:text-sm font-medium text-white/60 px-4 py-3">Status</th>
+                    <th className="text-left text-xs sm:text-sm font-medium text-white/60 px-4 py-3">Pages</th>
+                    <th className="text-left text-xs sm:text-sm font-medium text-white/60 px-4 py-3">Created</th>
+                    <th className="text-left text-xs sm:text-sm font-medium text-white/60 px-4 py-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRequests.map((request) => {
+                    const status = statusConfig[request.status as keyof typeof statusConfig];
+                    const StatusIcon = status.icon;
+                    
+                    return (
+                      <tr
+                        key={request._id}
+                        className="border-b border-white/10 hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-sm text-white">{request.projectName}</div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-white/60 text-xs sm:text-sm">
+                            {projectTypeLabels[request.projectType]}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div>
+                            <div className="font-medium text-xs sm:text-sm text-white">{request.contactName}</div>
+                            <div className="text-xs text-white/60">{request.contactEmail}</div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${status.bgColor} border ${status.borderColor}`}>
+                            <StatusIcon className={`w-3.5 h-3.5 ${status.color}`} />
+                            <span className={`text-xs font-medium ${status.color}`}>{status.label}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-white/60 text-xs sm:text-sm">
+                            {request.pagesRequired || 'N/A'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-white/60 text-xs sm:text-sm">
+                            {new Date(request.createdAt).toLocaleDateString()}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleViewDetails(request)}
+                              className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md font-medium transition-all flex items-center gap-1.5 text-xs"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              View
+                            </button>
+                            
+                            {request.isEditable && (
+                              <button
+                                onClick={() => handleEdit(request)}
+                                className="px-3 py-1.5 bg-white text-black hover:bg-gray-100 rounded-md font-medium transition-all flex items-center gap-1.5 text-xs"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                                Edit
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-3">
+          {filteredRequests.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <Filter className="h-12 w-12 text-white/20 mb-4" />
+              <div className="text-white/60 text-sm">No requests found</div>
+              <div className="text-xs text-white/40 mt-1">
+                {search || statusFilter ? 'Try adjusting your filters' : 'You haven\'t submitted any requests yet'}
+              </div>
+            </div>
+          ) : (
+            filteredRequests.map((request) => {
+              const status = statusConfig[request.status as keyof typeof statusConfig];
+              const StatusIcon = status.icon;
+              
+              return (
+                <div
+                  key={request._id}
+                  className="border border-white/10 bg-white/5 rounded-lg p-3"
+                >
+                  <div className="space-y-2.5">
+                    <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-lg sm:text-xl font-bold text-white mb-1 truncate">{request.projectName}</h3>
-                        <p className="text-white/60 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">{request.description}</p>
-                        
-                        <div className="flex flex-wrap items-center gap-2">
-                          <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-sm ${status.bgColor} border ${status.borderColor} flex items-center gap-1.5 sm:gap-2`}>
-                            <StatusIcon className={`w-3 h-3 sm:w-4 sm:h-4 ${status.color}`} />
-                            <span className={`text-xs sm:text-sm font-medium ${status.color}`}>{status.label}</span>
-                          </div>
-                          
-                          <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-sm bg-white/5 border border-white/10">
-                            <span className="text-xs sm:text-sm text-white/60">{projectTypeLabels[request.projectType]}</span>
-                          </div>
-                          
-                          {request.pagesRequired && (
-                            <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-sm bg-white/5 border border-white/10">
-                              <span className="text-xs sm:text-sm text-white/60">{request.pagesRequired} pages</span>
-                            </div>
-                          )}
-                        </div>
+                        <h3 className="font-medium text-sm truncate text-white">{request.projectName}</h3>
+                        <p className="text-xs text-white/60 mt-0.5">{request.contactName}</p>
+                      </div>
+                      <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md ${status.bgColor} border ${status.borderColor}`}>
+                        <StatusIcon className={`w-3 h-3 ${status.color}`} />
+                        <span className={`text-xs font-medium ${status.color}`}>{status.label}</span>
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-xs sm:text-sm text-white/50 sm:pl-15">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                        <span className="truncate">Submitted {new Date(request.createdAt).toLocaleDateString()}</span>
-                      </div>
+                    <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs text-white/60">
+                      <span>{new Date(request.createdAt).toLocaleDateString()}</span>
+                      <span>{request.pagesRequired || 'N/A'} pages</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-2">
+                      <button
+                        onClick={() => handleViewDetails(request)}
+                        className="flex-1 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 text-xs"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        View
+                      </button>
                       
                       {request.isEditable && (
-                        <div className="flex items-center gap-2 text-yellow-400">
-                          <Clock className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                          <span className="truncate">Edit: {getTimeRemaining(request.editableUntil)}</span>
-                        </div>
+                        <button
+                          onClick={() => handleEdit(request)}
+                          className="flex-1 px-3 py-2 bg-white text-black hover:bg-gray-100 rounded-lg font-medium transition-all flex items-center justify-center gap-2 text-xs"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          Edit
+                        </button>
                       )}
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => handleViewDetails(request)}
-                      className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg font-medium transition-all flex items-center justify-center gap-2 text-xs sm:text-sm"
-                    >
-                      <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="hidden sm:inline">View</span>
-                    </motion.button>
-                    
-                    {request.isEditable && (
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleEdit(request)}
-                        className="flex-1 sm:flex-none px-3 sm:px-4 py-2 bg-white text-black hover:bg-gray-100 rounded-lg font-medium transition-all flex items-center justify-center gap-2 text-xs sm:text-sm shadow-lg"
-                      >
-                        <Edit2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>Edit</span>
-                      </motion.button>
-                    )}
-                  </div>
                 </div>
-              </motion.div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
-      )}
+      </div>
 
       {/* Edit Modal */}
       <EditRequestModal
@@ -404,7 +532,7 @@ const RequestsSection = () => {
           </motion.div>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

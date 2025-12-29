@@ -68,8 +68,8 @@ export default function DashboardPage() {
         />
 
         {/* Page Content */}
-        <div className="p-6">
-          <div className="max-w-7xl mx-auto">
+        <div >
+          <div >
             <AnimatePresence mode="wait">
               {renderSection()}
             </AnimatePresence>
