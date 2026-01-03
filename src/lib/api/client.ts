@@ -1,5 +1,7 @@
 // lib/api/client.ts
 
+import { CreateSupportRequestDTO } from "./types";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 class ApiError extends Error {
@@ -57,6 +59,33 @@ export const apiClient = {
 
     getById: (token: string, id: string) =>
       fetchWithAuth(`${API_BASE_URL}/users/websites/${id}`, token),
+
+    getByPlan: (token: string, plan: string) =>
+      fetchWithAuth(`${API_BASE_URL}/users/websites/plan?plan=${encodeURIComponent(plan)}`, token),
+  },
+  support: {
+    // Get all user's support requests
+    getAll: (token: string, params?: { status?: string; websiteId?: string; category?: string }) => {
+      const queryString = params 
+        ? '?' + new URLSearchParams(params as any).toString()
+        : '';
+      return fetchWithAuth(`${API_BASE_URL}/support${queryString}`, token);
+    },
+
+    // Get single support request
+    getById: (token: string, id: string) =>
+      fetchWithAuth(`${API_BASE_URL}/support/${id}`, token),
+
+    // Get support requests for a specific website
+    getByWebsite: (token: string, websiteId: string) =>
+      fetchWithAuth(`${API_BASE_URL}/support/website/${websiteId}`, token),
+
+    // Create support request
+    create: (token: string, data: CreateSupportRequestDTO) =>
+      fetchWithAuth(`${API_BASE_URL}/support`, token, {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
   },
 };
 

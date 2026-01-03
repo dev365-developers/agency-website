@@ -7,7 +7,10 @@ import {
   Website,
   CreateWebsiteRequestDTO, 
   ApiResponse, 
-  CheckLimitResponse 
+  CheckLimitResponse, 
+  CreateSupportRequestDTO,
+  SupportRequestsResponse,
+  SupportRequestResponse
 } from './types';
 
 // Query Keys
@@ -20,6 +23,13 @@ export const queryKeys = {
   websites: {
     all: ['websites'] as const,
     byId: (id: string) => ['websites', id] as const,
+    byPlan: (plan: string) => ['websites', 'plan', plan] as const,
+  },
+  support: {
+    all: ['support'] as const,
+    byId: (id: string) => ['support', id] as const,
+    byWebsite: (websiteId: string) => ['support', 'website', websiteId] as const,
+    byStatus: (status: string) => ['support', 'status', status] as const,
   },
 };
 
@@ -152,5 +162,110 @@ export function useWebsite(id: string) {
       return response.data;
     },
     enabled: !!id,
+  });
+}
+
+// Fetch websites by plan
+export function useWebsitesByPlan(plan: string) {
+  const { getToken } = useAuth();
+
+  return useQuery({
+    queryKey: queryKeys.websites.byPlan(plan),
+    queryFn: async () => {
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+      
+      const response: ApiResponse<Website[]> = await apiClient.websites.getByPlan(token, plan);
+      return response.data || [];
+    },
+    enabled: !!plan,
+  });
+}
+
+/**
+ * Fetch all user's support requests
+ */
+export function useSupportRequests(filters?: {
+  status?: string;
+  websiteId?: string;
+  category?: string;
+}) {
+  const { getToken } = useAuth();
+
+  return useQuery({
+    queryKey: filters 
+      ? ['support', filters] 
+      : queryKeys.support.all,
+    queryFn: async () => {
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+      
+      const response: SupportRequestsResponse = await apiClient.support.getAll(token, filters);
+      return response.data || [];
+    },
+    enabled: true,
+  });
+}
+
+/**
+ * Fetch single support request
+ */
+export function useSupportRequest(id: string) {
+  const { getToken } = useAuth();
+
+  return useQuery({
+    queryKey: queryKeys.support.byId(id),
+    queryFn: async () => {
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+      
+      const response: SupportRequestResponse = await apiClient.support.getById(token, id);
+
+      return response.data;
+    },
+    enabled: !!id,
+  });
+}
+
+/**
+ * Fetch support requests for a specific website
+ */
+export function useSupportRequestsByWebsite(websiteId: string) {
+  const { getToken } = useAuth();
+
+  return useQuery({
+    queryKey: queryKeys.support.byWebsite(websiteId),
+    queryFn: async () => {
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+      
+      const response: SupportRequestsResponse = await apiClient.support.getByWebsite(token, websiteId);
+      return response.data || [];
+    },
+    enabled: !!websiteId,
+  });
+}
+
+/**
+ * Create support request mutation
+ */
+export function useCreateSupportRequest() {
+  const { getToken } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CreateSupportRequestDTO) => {
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+      
+      return apiClient.support.create(token, data);
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate queries to refetch
+      queryClient.invalidateQueries({ queryKey: queryKeys.support.all });
+      queryClient.invalidateQueries({ 
+        queryKey: queryKeys.support.byWebsite(variables.websiteId) 
+      });
+    },
   });
 }

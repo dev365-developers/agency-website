@@ -92,9 +92,9 @@ export default function Footer() {
         <div className="grid w-full gap-8 xl:grid-cols-3 xl:gap-8">
           {/* Brand Section */}
           <AnimatedContainer className="space-y-4">
-            <Frame className="w-8 h-8" />
+            <img src="/agency_logo.png" alt="dev365" className="h-10 w-auto" />
             <p className="text-gray-400 mt-8 text-sm md:mt-0">
-              © {new Date().getFullYear()} Agency. All rights reserved.
+              © {new Date().getFullYear()} dev365. All rights reserved.
             </p>
           </AnimatedContainer>
 

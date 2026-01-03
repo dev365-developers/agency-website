@@ -9,6 +9,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu } from "lucide-react";
 import RequestsSection from "@/components/dashboard/RequestsSection";
+import SupportSection from "@/components/dashboard/SupportSection";
 
 export default function DashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
@@ -39,6 +40,8 @@ export default function DashboardPage() {
         return <BillingSection key="billing" />;
       case 'requests':
         return <RequestsSection key="requests" />;
+      case 'support':
+        return <SupportSection key="support" />;
       default:
         return <OverviewSection key="overview" />;
     }

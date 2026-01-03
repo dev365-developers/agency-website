@@ -1,7 +1,10 @@
 'use client';
-import React, { useId } from 'react';
+import React, { useId, useState } from 'react';
 import { CheckCircle, Star, Zap, Sparkles, Building2 } from 'lucide-react';
 import { motion, Transition } from 'framer-motion';
+import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import AuthModal from '@/components/auth/AuthModal';
 
 type FREQUENCY = 'monthly' | 'yearly';
 const frequencies: FREQUENCY[] = ['monthly', 'yearly'];
@@ -19,7 +22,8 @@ interface Plan {
   }[];
   btn: {
     text: string;
-    href: string;
+    action: 'auth' | 'contact';
+    authMode?: 'login' | 'signup';
   };
   highlighted?: boolean;
   icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -32,7 +36,7 @@ const PLANS: Plan[] = [
     icon: Zap,
     price: {
       monthly: 599,
-      yearly: Math.round(4999 * 12 * 0.85),
+      yearly: Math.round(599 * 12 * 0.86),
     },
     features: [
       { text: 'Website built for free' },
@@ -47,7 +51,8 @@ const PLANS: Plan[] = [
     ],
     btn: {
       text: 'Get Started Free',
-      href: '/signup',
+      action: 'auth',
+      authMode: 'signup',
     },
   },
 
@@ -57,8 +62,8 @@ const PLANS: Plan[] = [
     info: 'Most popular for growing startups',
     icon: Sparkles,
     price: {
-      monthly: 3999,
-      yearly: Math.round(9999 * 12 * 0.85),
+      monthly: 1599,
+      yearly: Math.round(1599 * 12 * 0.86),
     },
     features: [
       { text: 'Website built for free' },
@@ -73,7 +78,8 @@ const PLANS: Plan[] = [
     ],
     btn: {
       text: 'Start Building',
-      href: '/signup',
+      action: 'auth',
+      authMode: 'signup',
     },
   },
 
@@ -97,7 +103,7 @@ const PLANS: Plan[] = [
     ],
     btn: {
       text: 'Contact Sales',
-      href: '/contact',
+      action: 'contact',
     },
   },
 ];
@@ -168,80 +174,117 @@ function GridPattern({
 }
 
 export default function PricingSection() {
-  const [frequency, setFrequency] = React.useState<FREQUENCY>('monthly');
+  const [frequency, setFrequency] = useState<FREQUENCY>('monthly');
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
+  
+  const { isSignedIn, isLoaded } = useUser();
+  const router = useRouter();
+
+  const handleButtonClick = (plan: Plan) => {
+    if (plan.btn.action === 'auth') {
+      // Check if user is already signed in
+      if (isLoaded && isSignedIn) {
+        // Redirect to dashboard if already signed in
+        router.push('/dashboard');
+      } else {
+        // Open auth modal if not signed in
+        setAuthMode(plan.btn.authMode || 'signup');
+        setAuthModalOpen(true);
+      }
+    } else if (plan.btn.action === 'contact') {
+      // You can implement contact logic here
+      // For now, let's scroll to a contact section or open a modal
+      window.location.href = 'mailto:contact@yourcompany.com';
+    }
+  };
 
   return (
-    <section className="relative pb-5 md:pb-10 bg-black overflow-hidden">
-      {/* Animated Grid Pattern Background */}
-      <GridPattern
-        width={40}
-        height={40}
-        x={-1}
-        y={-1}
-        squares={[
-          [4, 4],
-          [5, 1],
-          [8, 2],
-          [6, 6],
-          [10, 3],
-          [12, 8],
-          [15, 5],
-          [18, 12],
-          [20, 7],
-          [22, 15],
-          [25, 10],
-          [28, 18],
-        ]}
-        className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
+    <>
+      <section className="relative pb-5 md:pb-10 bg-black overflow-hidden">
+        {/* Animated Grid Pattern Background */}
+        <GridPattern
+          width={40}
+          height={40}
+          x={-1}
+          y={-1}
+          squares={[
+            [4, 4],
+            [5, 1],
+            [8, 2],
+            [6, 6],
+            [10, 3],
+            [12, 8],
+            [15, 5],
+            [18, 12],
+            [20, 7],
+            [22, 15],
+            [25, 10],
+            [28, 18],
+          ]}
+          className="[mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
+        />
+        
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-8">
+          {/* Section Header */}
+          <div className="mx-auto max-w-3xl text-center mb-16">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 px-4 py-1.5 text-xs text-white/90">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+              </span>
+              Simple Subscription Pricing
+            </div>
+            
+            <h2 className="text-3xl font-bold tracking-tight text-white md:text-4xl lg:text-5xl mb-4">
+              Plans that Scale
+              <br />
+              <span className="bg-gradient-to-r from-white via-gray-100 to-white/80 bg-clip-text text-transparent">
+                with Your Business
+              </span>
+            </h2>
+            
+            <p className="text-lg text-white/70 font-light mb-6">
+              No hidden fees. No setup costs. Cancel anytime.
+            </p>
+
+            {/* Frequency Toggle */}
+            <PricingFrequencyToggle frequency={frequency} setFrequency={setFrequency} />
+          </div>
+
+          {/* Pricing Cards Grid */}
+          <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-3">
+            {PLANS.map((plan) => (
+              <PricingCard 
+                key={plan.name} 
+                plan={plan} 
+                frequency={frequency}
+                onButtonClick={() => handleButtonClick(plan)}
+              />
+            ))}
+          </div>
+
+          {/* Important Note */}
+          <div className="mt-16 mx-auto max-w-3xl text-center">
+            <div className="p-6">
+              <p className="text-white/90 text-sm mb-2">
+                <strong>Important:</strong> Your website remains active as long as your subscription is active.
+              </p>
+              <p className="text-white/60 text-xs">
+                All plans include hosting, maintenance, security updates, and customer support.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode={authMode}
       />
-      
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="mx-auto max-w-3xl text-center mb-16">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 px-4 py-1.5 text-xs text-white/90">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-            </span>
-            Simple Subscription Pricing
-          </div>
-          
-          <h2 className="text-3xl font-bold tracking-tight text-white md:text-4xl lg:text-5xl mb-4">
-            Plans that Scale
-            <br />
-            <span className="bg-gradient-to-r from-white via-gray-100 to-white/80 bg-clip-text text-transparent">
-              with Your Business
-            </span>
-          </h2>
-          
-          <p className="text-lg text-white/70 font-light mb-6">
-            No hidden fees. No setup costs. Cancel anytime.
-          </p>
-
-          {/* Frequency Toggle */}
-          <PricingFrequencyToggle frequency={frequency} setFrequency={setFrequency} />
-        </div>
-
-        {/* Pricing Cards Grid */}
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 md:grid-cols-3">
-          {PLANS.map((plan) => (
-            <PricingCard key={plan.name} plan={plan} frequency={frequency} />
-          ))}
-        </div>
-
-        {/* Important Note */}
-        <div className="mt-16 mx-auto max-w-3xl text-center">
-          <div className="p-6">
-            <p className="text-white/90 text-sm mb-2">
-              <strong>Important:</strong> Your website remains active as long as your subscription is active.
-            </p>
-            <p className="text-white/60 text-xs">
-              All plans include hosting, maintenance, security updates, and customer support.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
+    </>
   );
 }
 
@@ -272,14 +315,22 @@ function PricingFrequencyToggle({
       ))}
       {frequency === 'yearly' && (
         <div className="absolute -top-8 right-0 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-1 rounded-full font-medium">
-          Save 15%
+          Save 14%
         </div>
       )}
     </div>
   );
 }
 
-function PricingCard({ plan, frequency }: { plan: Plan; frequency: FREQUENCY }) {
+function PricingCard({ 
+  plan, 
+  frequency,
+  onButtonClick 
+}: { 
+  plan: Plan; 
+  frequency: FREQUENCY;
+  onButtonClick: () => void;
+}) {
   const Icon = plan.icon || Zap;
   
   return (
@@ -310,7 +361,7 @@ function PricingCard({ plan, frequency }: { plan: Plan; frequency: FREQUENCY }) 
           )}
           {frequency === 'yearly' && plan.price.monthly > 0 && (
             <p className="bg-green-500/20 text-green-300 border border-green-500/30 flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium">
-              15% off
+              14% off
             </p>
           )}
         </div>
@@ -353,8 +404,8 @@ function PricingCard({ plan, frequency }: { plan: Plan; frequency: FREQUENCY }) 
 
       {/* CTA Button */}
       <div className={`mt-auto w-full border-t ${plan.highlighted ? 'border-white/20 bg-white/[0.05]' : 'border-white/[0.08]'} p-6`}>
-        <a
-          href={plan.btn.href}
+        <button
+          onClick={onButtonClick}
           className={`block w-full text-center rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-200 ${
             plan.highlighted
               ? 'bg-white text-black hover:bg-white/90 shadow-lg shadow-white/20'
@@ -362,7 +413,7 @@ function PricingCard({ plan, frequency }: { plan: Plan; frequency: FREQUENCY }) 
           }`}
         >
           {plan.btn.text}
-        </a>
+        </button>
       </div>
     </div>
   );

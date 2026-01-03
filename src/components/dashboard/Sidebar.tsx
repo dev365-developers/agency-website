@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Globe, CreditCard, ChevronLeft, Menu, FileText } from 'lucide-react';
+import { LayoutDashboard, Globe, CreditCard, ChevronLeft, Users, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -10,6 +10,7 @@ const Sidebar = ({ collapsed, setCollapsed, activeSection, setActiveSection }: a
     { icon: Globe, label: 'My Websites', id: 'websites' },
     { icon: FileText, label: 'My Requests', id: 'requests' },
     { icon: CreditCard, label: 'Billing', id: 'billing' },
+    { icon: Users, label: 'Support', id: 'support' },
   ];
 
   const router = useRouter();
@@ -78,7 +79,7 @@ const Sidebar = ({ collapsed, setCollapsed, activeSection, setActiveSection }: a
 
         {/* Toggle Button - Hidden on mobile when collapsed */}
         <motion.div
-          className={`absolute top-1/2 -right-3 z-40 ${
+          className={`absolute top-1/2 -right-3 z-30 ${
             collapsed ? "hidden lg:block" : "hidden lg:block"
           }`}
           whileHover={{ scale: 1.1 }}

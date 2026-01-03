@@ -32,17 +32,6 @@ const Topbar = ({ sidebarCollapsed, setSidebarCollapsed }: any) => {
     >
       <div className="h-full px-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          {/* Mobile Menu Button */}
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="lg:hidden text-white/80 hover:text-white hover:bg-white/5 cursor-pointer"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </motion.div>
           <h2 className="text-lg font-semibold text-white">Dashboard</h2>
         </div>
         

@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Agency - Website Builder for Startups",
-  description: "Your app description",
+  title: "dev365 - Website Builder for Startups",
+  description: "Build and launch your websites in minutes with dev365's service with no upfront cost",
 };
 
 export default function RootLayout({

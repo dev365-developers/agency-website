@@ -59,7 +59,7 @@ export default function FuturisticNavbarWithAuth() {
   const navLinks = [
     { label: 'Services', href: '#services' },
     { label: 'Portfolio', href: '#portfolio' },
-    { label: 'Pricing', href: '#pricing' },
+    { label: 'Pricing', href: '/pricing' },
     { label: 'About', href: '#about' },
   ];
 
@@ -92,8 +92,12 @@ export default function FuturisticNavbarWithAuth() {
                 variant="ghost"
                 className="text-white/80 hover:bg-transparent hover:text-white cursor-pointer"
                 onClick={() => {
-                  const element = document.querySelector(link.href);
-                  element?.scrollIntoView({ behavior: "smooth" });
+                  if (link.href.startsWith("#")) {
+                    const element = document.querySelector(link.href);
+                    element?.scrollIntoView({ behavior: "smooth" });
+                  } else {
+                    router.push(link.href);
+                  }
                 }}
               >
                 {link.label}
@@ -231,8 +235,12 @@ export default function FuturisticNavbarWithAuth() {
                           variant="ghost"
                           className="w-full justify-start text-white/80 hover:text-white hover:bg-white/5 cursor-pointer h-11"
                           onClick={() => {
-                            const element = document.querySelector(link.href);
-                            element?.scrollIntoView({ behavior: "smooth" });
+                            if (link.href.startsWith("#")) {
+                              const element = document.querySelector(link.href);
+                              element?.scrollIntoView({ behavior: "smooth" });
+                            } else {
+                              router.push(link.href);
+                            }
                             setMobileMenuOpen(false);
                           }}
                         >

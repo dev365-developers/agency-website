@@ -11,7 +11,9 @@ export default function Home() {
     <main>
       <AgencyHero />
       <WhySection />
+      <section id="how-it-works">
       <HowItWorksSection />
+      </section>
       <WhatsIncluded />
       <PricingSection />
       <DemoWebsitesSection />

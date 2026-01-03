@@ -1,10 +1,13 @@
 "use client"
 
-import React, { forwardRef, useImperativeHandle, useRef, useMemo, type Ref } from "react"
+import React, { forwardRef, useImperativeHandle, useRef, useMemo, useState, type Ref } from "react"
 import { Canvas, useFrame, type RootState } from "@react-three/fiber"
 import { PerspectiveCamera } from "@react-three/drei"
 import * as THREE from "three"
 import { ArrowRight, Check } from "lucide-react"
+import { useUser } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
+import AuthModal from '@/components/auth/AuthModal'
 
 const noise = `
 float random (in vec2 st) {
@@ -404,6 +407,26 @@ const Button: React.FC<ButtonProps> = ({ variant = "default", size = "lg", class
 // ============================================================================
 
 export default function AgencyHero() {
+  const { isSignedIn, isLoaded } = useUser()
+  const router = useRouter()
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+
+  const handleGetStarted = () => {
+    if (isLoaded && isSignedIn) {
+      router.push('/dashboard')
+    } else {
+      // Open auth modal for signup
+      setAuthModalOpen(true)
+    }
+  }
+
+  const handleLearnMore = () => {
+    const howItWorksSection = document.querySelector('#how-it-works')
+    if (howItWorksSection) {
+      howItWorksSection.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
       {/* Beams Background */}
@@ -433,7 +456,7 @@ export default function AgencyHero() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
               </div>
-              Limited Spots Available for Q1 2025
+              Limited Spots Available for Q1 2026
             </div>
 
             {/* Main Headline */}
@@ -454,11 +477,18 @@ export default function AgencyHero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
-              <Button className="shadow-2xl shadow-white/25 min-w-[200px]">
+              <Button 
+                className="shadow-2xl shadow-white/25 min-w-[200px]"
+                onClick={handleGetStarted}
+              >
                 Get Started Free
                 <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button variant="outline" className="min-w-[200px]">
+              <Button 
+                variant="outline" 
+                className="min-w-[200px]"
+                onClick={handleLearnMore}
+              >
                 Learn More
               </Button>
             </div>
@@ -486,6 +516,13 @@ export default function AgencyHero() {
 
       {/* Gradient Overlay */}
       <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 pointer-events-none" />
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode="signup"
+      />
     </div>
   )
 }
