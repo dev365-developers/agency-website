@@ -1,9 +1,11 @@
-import React from 'react'
+import AboutHero from "@/components/about/AboutHero";
+import MissionSection from "@/components/about/AboutMission";
 
-type Props = {}
-
-export default function AboutPage({}: Props) {
+export default function AboutPage() {
   return (
-    <div>In development</div>
+    <main>
+        <AboutHero />
+        <MissionSection />
+    </main>
   )
 }

@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "dev365 - Website Builder for Startups",
+  title: "dev365 - Website Builder for Businesses",
   description: "Build and launch your websites in minutes with dev365's service with no upfront cost",
 };
 
