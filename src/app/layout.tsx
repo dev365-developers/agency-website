@@ -18,9 +18,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "dev365 - Website Builder for Businesses",
-  description: "Build and launch your websites in minutes with dev365's service with no upfront cost",
+  title: "Dev365 | Get a Professional Website Built for Free",
+  description:
+    "Dev365 builds professional business websites at zero upfront cost. Pay a simple monthly fee. Design, hosting, maintenance included.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
 };
+
 
 export default function RootLayout({
   children,
