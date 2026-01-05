@@ -57,10 +57,10 @@ export default function FuturisticNavbarWithAuth() {
   };
 
   const navLinks = [
-    { label: 'Services', href: '#services' },
-    { label: 'Portfolio', href: '#portfolio' },
+    { label: 'Services', href: '/services' },
     { label: 'Pricing', href: '/pricing' },
-    { label: 'About', href: '#about' },
+    { label: 'Contact Sales', href: '/contact' },
+    { label: 'About', href: '/about' },
   ];
 
   return (
