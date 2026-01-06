@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
 'use client';
 import React, { useState } from 'react';
 import { Zap, Sparkles, Building2, Check } from 'lucide-react';
+
+
+export const metadata: Metadata = {
+  title: "Pricing — dev365 Website Plans",
+  description:
+    "View dev365 pricing plans. Get a professional business website built for free with simple monthly pricing.",
+};
 
 type FREQUENCY = 'monthly' | 'yearly';
 

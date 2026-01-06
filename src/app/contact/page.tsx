@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 'use client';
 import React, { useState } from 'react';
 import { Zap, Users, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+export const metadata: Metadata = {
+  title: "Contact dev365 — Talk to Our Team",
+  description:
+    "Contact dev365 to get your business website built for free. Talk to our team today.",
+};
 
 // GridPattern Component (reused from pricing)
 function GridPattern({ 

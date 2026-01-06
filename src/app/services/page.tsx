@@ -1,6 +1,14 @@
+import type { Metadata } from "next";
 'use client';
 import React from 'react';
 import { Check } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: "Services — dev365 Website Development & Maintenance",
+  description:
+    "Explore dev365 services including website design, development, hosting, maintenance, and ongoing updates with zero upfront cost.",
+};
+
 
 // GridPattern Component
 function GridPattern({ 
