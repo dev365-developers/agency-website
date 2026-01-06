@@ -21,10 +21,6 @@ export const metadata: Metadata = {
   title: "Dev365 | Get a Professional Website Built for Free",
   description:
     "Dev365 builds professional business websites at zero upfront cost. Pay a simple monthly fee. Design, hosting, maintenance included.",
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-  },
 };
 
 
