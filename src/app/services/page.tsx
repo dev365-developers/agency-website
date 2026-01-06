@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 'use client';
+import type { Metadata } from "next";
 import React from 'react';
 import { Check } from 'lucide-react';
 

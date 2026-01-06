@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 'use client';
+import type { Metadata } from "next";
 import React, { useState } from 'react';
 import { Zap, Sparkles, Building2, Check } from 'lucide-react';
 
